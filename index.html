@@ -50,7 +50,7 @@
     var sendBase64 = function (data) {
         console.log('sending: ' + data.length);
         var xhr = new XMLHttpRequest();
-        xhr.open("POST", 'http://localhost:9000/image_drop', true);
+        xhr.open("POST", 'http://10.6.217.194:9000/image_drop', true);
 
         //Передает правильный заголовок в запросе
         xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
@@ -75,9 +75,7 @@
 
         canvas.getContext("2d").drawImage(video, 0, 0, 300, 300, 0, 0, 300, 300);
 
-        var img = canvas.toDataURL("image/png");
-        image.src = img;
-        return img;
+        return canvas.toDataURL("image/png");
 
         //alert("done");
         //video
