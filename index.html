@@ -1,13 +1,102 @@
 <!DOCTYPE html>
+
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
     <title>Title</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <style type="text/css">
+        button {
+            min-width: 100px;
+            width: 40%;
+        }
+        .my-btn-container {
+            max-width: 640px;
+            justify-content: space-between;
+        }
+
+        @media screen and (max-width: 767px) {
+            .my-container {
+                margin-left: 0;
+            }
+            .my-btn-container {
+                justify-content: space-around;
+            }
+            video {
+                max-width: 100%;
+            }
+        }
+    </style>
 </head>
+
 <body>
-<video id="vid" muted autoplay></video>
+
+<div class="my-container">
+    <div>
+        <video id="vid" muted autoplay></video>
+        <canvas id="c" style="display:none;" width="300" height="300"></canvas>
+    </div>
+    <!--<img id="i" width="400" height="400"/>-->
+    <div class="my-btn-container" style="display: flex;">
+        <button type="button" class="btn btn-success" style="margin-right: 10px;" onclick="startCapture();">Start</button>
+        <button type="button" class="btn btn-danger" onclick="stopCapture();">Stop</button>
+    </div>
+</div>
 <script>
+    var sendBase64 = function (data) {
+        console.log('sending: ' + data.length);
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", 'http://localhost:9000/image_drop', true);
+
+        //Передает правильный заголовок в запросе
+        xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+
+        xhr.onreadystatechange = function () {//Вызывает функцию при смене состояния.
+            if (xhr.readyState == XMLHttpRequest.DONE && xhr.status == 200) {
+                // Запрос завершен. Здесь можно обрабатывать результат.
+                console.log("upload finished");
+            }
+        }
+
+        xhr.send(data);
+    };
+
+    var stopCapture = function () {
+        clearInterval(timerId);
+        console.log("camera capture stopped");
+    };
+
+    var singleCapture = function () {
+        console.log("capturing");
+
+        canvas.getContext("2d").drawImage(video, 0, 0, 300, 300, 0, 0, 300, 300);
+
+        var img = canvas.toDataURL("image/png");
+        image.src = img;
+        return img;
+
+        //alert("done");
+        //video
+    };
+
+    var startCapture = function () {
+        console.log("start camera capture");
+
+        timerId = setInterval(function () {
+            sendBase64(singleCapture());
+        }, 1000);
+
+
+    };
+
+    var canvas = document.getElementById('c');
     var video = document.getElementById('vid');
+    var image = document.getElementById('i');
+
     video.style.width = document.width + 'px';
     video.style.height = document.height + 'px';
     video.setAttribute('autoplay', '');
@@ -17,13 +106,16 @@
     var constraints = {
         audio: false,
         video: {
-            facingMode: 'user'
+            //environment
+            //user
+            facingMode: 'environment'
         }
     };
-
     navigator.mediaDevices.getUserMedia(constraints).then(function success(stream) {
         video.srcObject = stream;
     });
+
 </script>
 </body>
+
 </html>
